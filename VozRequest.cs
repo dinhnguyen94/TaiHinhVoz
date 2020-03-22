@@ -110,11 +110,19 @@ namespace TaiHinhVoz
                 {
                     urlPage = url;
                 }
-                var responsePage = await httpClient.GetAsync(urlPage);
-                var responsePageContent = await responsePage.Content.ReadAsStringAsync();
+                try
+                {
+                    var responsePage = await httpClient.GetAsync(urlPage);
+                    var responsePageContent = await responsePage.Content.ReadAsStringAsync();
+                    docPage.LoadHtml(responsePageContent);
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    Console.WriteLine("Loi tai trang");
+                }
 
                 Thread.Sleep(2000);
-                docPage.LoadHtml(responsePageContent);
+                
 
                 HtmlNodeCollection nodeImg = docPage.DocumentNode.SelectNodes("//img[contains(@src, 'data:image')]");
 
@@ -131,13 +139,18 @@ namespace TaiHinhVoz
                 foreach (HtmlNode node in nodeImg)
                 {
                     string directLinkImg = node.Attributes["data-src"].Value;
-                    
                     string localFilename = localFolder + @"\" + count + ".jpg";
 
-                    var imageBytes = await httpClient.GetByteArrayAsync(directLinkImg);
-                    File.WriteAllBytes(localFilename, imageBytes);
-                    Console.WriteLine("Da tai xong hinh thu {0}", count);
-
+                    try
+                    {
+                        var imageBytes = await httpClient.GetByteArrayAsync(directLinkImg);
+                        File.WriteAllBytes(localFilename, imageBytes);
+                        Console.WriteLine("Da tai xong hinh thu {0}", count);
+                    }
+                    catch(System.Net.Http.HttpRequestException)
+                    {
+                        Console.WriteLine("Loi tai hinh");
+                    }
                     Thread.Sleep(1000);
                     count++;
                 }

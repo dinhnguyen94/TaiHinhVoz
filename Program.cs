@@ -62,14 +62,7 @@ namespace TaiHinhVoz
                 {
                     beginPage = 1;
                 }
-                try
-                {
-                    vozRequest.DownloadImage(httpClient, url, beginPage, endPage).GetAwaiter().GetResult();
-                }
-                catch (System.Net.Http.HttpRequestException)
-                {
-                    Console.WriteLine("Loi gi do khong biet");
-                }
+                vozRequest.DownloadImage(httpClient, url, beginPage, endPage).GetAwaiter().GetResult();
             }
 
             Console.WriteLine("Da tai xong het tat ca cac hinh");
