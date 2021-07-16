@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +17,8 @@ namespace TaiHinhVoz
         public async Task<HttpClient> LogIn(string username, string password)
         {
             HttpClient httpClient = new HttpClient();
-            var responseGetPage = await httpClient.GetAsync("https://next.voz.vn/");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36");
+            var responseGetPage = await httpClient.GetAsync("https://voz.vn/");
             var contentResGetPage = await responseGetPage.Content.ReadAsStringAsync();
 
             HtmlDocument doc = new HtmlDocument();
@@ -26,7 +27,7 @@ namespace TaiHinhVoz
             HtmlNode node = doc.DocumentNode.SelectSingleNode("//html");
 
             string xfToken = node.Attributes["data-csrf"].Value;
-            string urlLogin = "https://next.voz.vn/login/?_xfRequestUri=%2F&_xfWithData=1&_xfToken=" + xfToken + "&_xfResponseType=json";
+            string urlLogin = "https://voz.vn/login/?_xfRequestUri=%2F&_xfWithData=1&_xfToken=" + xfToken + "&_xfResponseType=json";
 
             var responseGetFormLogin = await httpClient.GetAsync(urlLogin);
             var contentResGetFormLogin = await responseGetFormLogin.Content.ReadAsStringAsync();
@@ -43,12 +44,12 @@ namespace TaiHinhVoz
                 new KeyValuePair<string, string> ("login",username),
                 new KeyValuePair<string, string> ("password",password),
                 new KeyValuePair<string, string> ("remember", "1"),
-                new KeyValuePair<string, string> ("_xfRedirect", "https://next.voz.vn/"),
+                new KeyValuePair<string, string> ("_xfRedirect", "https://voz.vn/"),
                 new KeyValuePair<string, string> ("_xfToken", _xfToken)
             }
             );
 
-            var res = await httpClient.PostAsync("https://next.voz.vn/login/login", dataPost);
+            var res = await httpClient.PostAsync("https://voz.vn/login/login", dataPost);
             var contentRes = await res.Content.ReadAsStringAsync();
             if (contentRes.Contains("Incorrect password"))
             {
@@ -90,7 +91,7 @@ namespace TaiHinhVoz
             }
             
             //Get link page & download
-            string threadID = url.Replace("https://next.voz.vn", "").Split('.')[1];
+            string threadID = url.Replace("https://voz.vn", "").Split('.')[1];
             string localFolder = @"Hinh_" + threadID;
             Directory.CreateDirectory(localFolder);
 
@@ -124,7 +125,7 @@ namespace TaiHinhVoz
                 Thread.Sleep(2000);
                 
 
-                HtmlNodeCollection nodeImg = docPage.DocumentNode.SelectNodes("//img[contains(@src, 'data:image')]");
+                HtmlNodeCollection nodeImg = docPage.DocumentNode.SelectNodes("//div[contains(@class, 'bbImageWrapper')]");
 
                 if (nodeImg == null)
                 {
